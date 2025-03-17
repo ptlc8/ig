@@ -1,99 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html data-app="{ quiz: { images: [], propositions: [], solution: -1 } }" data-debug>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Devine avec les images</title>
-		<link rel="stylesheet" href="style.css?c" />
+		<link rel="stylesheet" href="style.css?y" />
+		<script src="https://cdn.jsdelivr.net/gh/ptlc8/anchovy@0.2.3/src/anchovy.js"></script>
 	</head>
 	<body>
-		<div class="guesser">
-			<div class="images">
-				<div id="i0"></div>
-				<div id="i1"></div>
-				<div id="i2"></div>
-				<div id="i3"></div>
+		<div class="guesser" data-update="quiz">
+			<div class="images" data-foreach-image="quiz.images">
+				<div data-bind-style="'background-image: url(' + image + ')'"></div>
 			</div>
-			<div class="responses">
-				<span id="r0" onclick="choose(this,0)"></span>
-				<span id="r1" onclick="choose(this,1)"></span>
-				<span id="r2" onclick="choose(this,2)"></span>
-				<span id="r3" onclick="choose(this,3)"></span>
+			<div class="propositions" data-foreach-proposition="quiz.propositions" data-index="i">
+				<span data-on-click="choose(i)" data-bind="proposition" data-bind-class="quiz.answer == i ? quiz.solution == i ? 'good' : 'bad' : ''" data-update="quiz.answer"></span>
 			</div>
 		</div>
 		<script>
-			var words = [];
-			window.onload = () => {
-				get("liste_francais.txt").then((response) => {
-					words = response.split("\n");
-					nextQuiz();
-				});
-			}
-			
-			var solution = 0;
-			
-			async function nextQuiz() {
-				var quiz = await getQuiz();
-				for (let i = 0; i < 4; i++) {
-					let reponseSpan = document.getElementById('r'+i);
-					reponseSpan.innerText = quiz.solutions[i];
-					reponseSpan.style.backgroundColor = "";
-				}
-				for (let i = 0; i < 4; i++) {
-					document.getElementById('i'+i).style.backgroundImage = "url('"+quiz.images.hits[i].webformatURL+"')";
-				}
-				solution = quiz.solution;
-			}
-			
-			async function getQuiz(lang="fr", n=4) {
-				let solutions = [];
-				let solution;
-				let images;
-				do {
-					for (let i = 0; i < n; i++)
-						solutions.push(words[~~(random()*words.length)]);
-					solution = parseInt(random()*n);
-					response = await get("https://pixabay.com/api/?key=15601609-0000000000000000000000000&q="+solutions[solution]+"&image_type=photo&lang="+lang);
-					images = JSON.parse(response);
-				} while (images.totalHits < 4);
-				console.log(images.totalHits+" results");
-				// largeImageURL
-				return {solutions, solution, images};
-			}
-			
-			async function get(url) {
-				var promise = new Promise(async(resolve, reject) => {
-					var xhr = new XMLHttpRequest();
-					xhr.open("GET", url);
-					xhr.onreadystatechange = function() {
-						if (this.readyState === XMLHttpRequest.DONE && this.status === 200) resolve(xhr.responseText);
-					};
-					xhr.send();
-				});
-				return promise;
-			}
-			
-			function choose(button, n) {
-				if (solution === undefined)
-					return;
-				if (n != solution) {
-					button.style.backgroundColor = "red";
-				}
-				document.getElementById("r" + solution).style.backgroundColor = "lime";
-				solution = undefined;
-				setTimeout(function() {
-					nextQuiz();
-				}, 1000);
-			}
-			
-			var __seed = Date.now()-Date.now()%60000;
-			function random() {
-				let x = Math.sin(__seed++) * 10000;
-				return x - Math.floor(x);
-			}
-			function setRandomSeed(seed) {
-				__seed = seed;
-			}
+		nextQuiz();
+
+		function nextQuiz() {
+			return fetch("quiz.php")
+				.then(res => res.json())
+				.then(quiz => app.data.quiz = quiz);
+		}
+
+		function choose(index) {
+			app.data.quiz.answer = index;
+			setTimeout(function() {
+				nextQuiz();
+			}, 1000);
+		}
 		</script>
 	</body>
 </html>
