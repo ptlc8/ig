@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+.guesser {
+    box-sizing: border-box;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: .5em;
+    gap: 1em;
+    background: #a5f4ff;
+    border-radius: 1em;
+}
+.images {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 96vmin;
+    gap: .5em;
+}
+.images div {
+    flex: calc(50% - .5em) 1 1;
+    background-size: cover;
+    background-position: center;
+    border-radius: .5em;
+}
+.responses {
+    display: flex;
+    gap: .5em;
+}
+.responses span {
+    flex: 1;
+    text-align: center;
+    border-radius: .5em;
+    background-color: yellow;
+    padding: 2% 1%;
+    /* box-shadow: 5px 5px 5px #444400; */
+    cursor: pointer;
+}
+
+@media (orientation: portrait) {
+    .responses {
+        flex-direction: column;
+    }
+}
