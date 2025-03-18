@@ -1,0 +1,20 @@
+services:
+  fast-cgi:
+    build: .
+    environment:
+      PIXABAY_API_KEY: ${PIXABAY_API_KEY}
+    expose:
+      - 9000
+    restart: always
+  web-server:
+    build:
+      context: .
+      dockerfile: caddy.Dockerfile
+    ports:
+      - 80
+    depends_on:
+      - fast-cgi
+    restart: always
+    labels:
+      - webproxy.path=ig
+      - webproxy.port=80

@@ -1,0 +1,6 @@
+:80 {
+    root * /srv
+    try_files {path}.php {path}.html {path}
+    php_fastcgi fast-cgi:9000
+    file_server
+}
